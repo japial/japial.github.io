@@ -14,7 +14,7 @@ function generateTable(investType, principal, growthRate, numberOfYears){
     tHead.appendChild(headerRow);
     table.appendChild(tHead);
     const tBody = document.createElement("tbody");
-    const monthlySIP = investType === "sip" ? principal : 0;
+    let returnAmount = principal;
     // Add one row for each term
     for (let i = 0; i < numberOfYears; i++) {
         const terms = i + 1;
@@ -27,15 +27,15 @@ function generateTable(investType, principal, growthRate, numberOfYears){
         row.appendChild(columnTerm);
 
         const columnPrincipal = document.createElement("td");
-        columnPrincipal.appendChild(document.createTextNode(parseInt(principal)));
+        columnPrincipal.appendChild(document.createTextNode(parseFloat(returnAmount).toFixed(2)));
         row.appendChild(columnPrincipal);
 
-        principal = parseInt(principal) + (principal * growthRate / 100);
+        returnAmount = parseFloat(returnAmount) + (returnAmount * growthRate / 100);
         const columnReturn = document.createElement("td");
-        columnReturn.appendChild(document.createTextNode(parseInt(principal)));
+        columnReturn.appendChild(document.createTextNode(parseFloat(returnAmount).toFixed(2)));
         row.appendChild(columnReturn);
         tBody.appendChild(row);
-        principal = principal + monthlySIP;
+        returnAmount += parseFloat(principal);
     }
     table.appendChild(tBody);
   
