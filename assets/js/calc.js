@@ -1,9 +1,38 @@
+function spellNumber(num) {
+    const ones = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
+    const tens = ['ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
+    const twentyToNinety = ['twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy', 'eighty', 'ninety'];
+    
+    if (num >= 0 && num < 10) {
+      return ones[num];
+    } else if (num >= 10 && num < 20) {
+      return tens[num - 10];
+    } else if (num >= 20 && num < 100) {
+      const tensDigit = Math.floor(num / 10);
+      const onesDigit = num % 10;
+      const tensString = twentyToNinety[tensDigit - 2];
+      const onesString = ones[onesDigit];
+      return onesString ? `${tensString}-${onesString}` : tensString;
+    } else if (num >= 100 && num < 1000) {
+      const hundredsDigit = Math.floor(num / 100);
+      const tensDigit = Math.floor((num % 100) / 10);
+      const onesDigit = num % 10;
+      const hundredsString = `${ones[hundredsDigit]} hundred`;
+      const tensString = tensDigit > 1 ? `${twentyToNinety[tensDigit - 2]}-` : '';
+      const onesString = onesDigit ? ones[onesDigit] : '';
+      return `${hundredsString} ${tensString}${onesString}`.trim();
+    } else {
+      return 'Number out of range';
+    }
+}
+
+  
 function generateTable(investType, principal, growthRate, numberOfYears){
     const table = document.createElement("table");
     table.className = "table";
   
     // Add the header row
-    const headers = ["Term", "Principal", "Return"];
+    const headers = ["Term", "Principal", "Return", "Word"];
     const tHead = document.createElement("thead");
     const headerRow = document.createElement("tr");
     headers.map((item)=>{
@@ -34,6 +63,11 @@ function generateTable(investType, principal, growthRate, numberOfYears){
         const columnReturn = document.createElement("td");
         columnReturn.appendChild(document.createTextNode(parseFloat(returnAmount).toFixed(2)));
         row.appendChild(columnReturn);
+
+        const columnReturnWord = document.createElement("td");
+        columnReturnWord.appendChild(document.createTextNode(spellNumber(parseInt(returnAmount))));
+        row.appendChild(columnReturnWord);
+        
         if(investType === 'sip'){
             returnAmount += parseFloat(principal);
             if(terms%12 === 0){
