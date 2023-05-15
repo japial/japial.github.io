@@ -1,11 +1,4 @@
-function calculateCompoundInterest() {
-    let tableContent = document.getElementById('tableContent')
-    tableContent.innerHTML = "";
-    // Get the form data
-    let principal = document.getElementById('principal').value;
-    const growthRate = document.getElementById('growthRate').value;
-    const numberOfYears = document.getElementById('numberOfYears').value; 
-    // Create a table to display the results
+function generateTable(principal, growthRate, numberOfYears){
     const table = document.createElement("table");
     table.className = "table";
   
@@ -48,4 +41,16 @@ function calculateCompoundInterest() {
     // Append the table to the document
     
     tableContent.appendChild(table);
-  }
+}
+
+function calculateCompoundInterest() {
+    let tableContent = document.getElementById('tableContent')
+    tableContent.innerHTML = "";
+    // Get the form data
+    const investType = document.getElementById("investType").value;
+    let principal = document.getElementById('principal').value;
+    const growthRate = document.getElementById('growthRate').value;
+    const numberOfYears = document.getElementById('numberOfYears').value; 
+    // Create a table to display the results
+    generateTable(principal, growthRate, numberOfYears);
+}
