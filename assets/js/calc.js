@@ -1,4 +1,4 @@
-function generateTable(principal, growthRate, numberOfYears){
+function generateTable(investType, principal, growthRate, numberOfYears){
     const table = document.createElement("table");
     table.className = "table";
   
@@ -14,6 +14,7 @@ function generateTable(principal, growthRate, numberOfYears){
     tHead.appendChild(headerRow);
     table.appendChild(tHead);
     const tBody = document.createElement("tbody");
+    const monthlySIP = investType === "sip" ? principal : 0;
     // Add one row for each term
     for (let i = 0; i < numberOfYears; i++) {
         const terms = i + 1;
@@ -33,8 +34,8 @@ function generateTable(principal, growthRate, numberOfYears){
         const columnReturn = document.createElement("td");
         columnReturn.appendChild(document.createTextNode(parseInt(principal)));
         row.appendChild(columnReturn);
-
         tBody.appendChild(row);
+        principal = principal + monthlySIP;
     }
     table.appendChild(tBody);
   
@@ -57,5 +58,5 @@ function calculateCompoundInterest() {
         growthRate = growthRate / 12;
     }
     // Create a table to display the results
-    generateTable(principal, growthRate, numberOfTerms);
+    generateTable(investType, principal, growthRate, numberOfTerms);
 }
