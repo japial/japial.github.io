@@ -1,3 +1,9 @@
+function capitalizeFirstLetter(str) {
+  return str.replace(/\b\w/g, function(txt) {
+    return txt.charAt(0).toUpperCase() + txt.slice(1);
+  });
+}
+
 function spellNumber(num) {
     const ones = ['zero', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine'];
   const tens = ['ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen', 'seventeen', 'eighteen', 'nineteen'];
@@ -87,7 +93,7 @@ function generateTable(investType, principal, growthRate, numberOfYears){
         row.appendChild(columnReturn);
 
         const columnReturnWord = document.createElement("td");
-        columnReturnWord.appendChild(document.createTextNode(spellNumber(parseInt(returnAmount))));
+        columnReturnWord.appendChild(document.createTextNode(capitalizeFirstLetter(spellNumber(parseInt(returnAmount)))));
         row.appendChild(columnReturnWord);
         
         if(investType === 'sip'){
