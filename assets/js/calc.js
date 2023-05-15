@@ -34,8 +34,14 @@ function generateTable(investType, principal, growthRate, numberOfYears){
         const columnReturn = document.createElement("td");
         columnReturn.appendChild(document.createTextNode(parseFloat(returnAmount).toFixed(2)));
         row.appendChild(columnReturn);
-        tBody.appendChild(row);
-        returnAmount += parseFloat(principal);
+        if(investType === 'sip'){
+            returnAmount += parseFloat(principal);
+            if(terms%12 === 0){
+                tBody.appendChild(row);
+            }
+        }else{
+            tBody.appendChild(row);
+        }
     }
     table.appendChild(tBody);
   
