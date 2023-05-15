@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calculator</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-KK94CHFLLe+nY2dmCWGMq91rCGa5gtU4mk92HdvYe+M/SXH301p5ILy+dN9+nJOZ" crossorigin="anonymous">
+</head>
+<body>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 mx-auto">
+                <div class="card my-5">
+                    <div class="card-header">
+                        Compund Lumpsum
+                    </div>
+                    <div class="card-body">
+                        <div class="form-group">
+                          <label for="principal">Principal</label>
+                          <input type="number" class="form-control"  id="principal" placeholder="Your principal">
+                        </div>
+                        <div class="form-group">
+                          <label for="growthRate">Growth Rate</label>
+                          <input type="number" class="form-control"  id="growthRate" placeholder="Your interest rate">
+                        </div>
+                        <div class="form-group">
+                          <label for="numberOfYears">Number of Terms</label>
+                          <input type="number" class="form-control" id="numberOfYears" placeholder="Your number of years">
+                        </div>
+                    </div>
+                    <div class="card-footer">
+                        <button type="button" onclick="calculateCompoundInterest(document.getElementById('myForm'))" class="btn btn-primary">Submit</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="row">
+            <div class="col-md-12 table-responsive mb-3" id="tableContent">
+            </div>
+        </div>
+   
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha3/dist/js/bootstrap.bundle.min.js" integrity="sha384-ENjdO4Dr2bkBIFxQpeoTz1HIcje39Wm4jDKdf19U8gI4ddQ3GYNS7NTKfAdVQSZe" crossorigin="anonymous"></script>
+    <script>
+        function calculateCompoundInterest() {
+            let tableContent = document.getElementById('tableContent')
+            tableContent.innerHTML = "";
+            // Get the form data
+            let principal = document.getElementById('principal').value;
+            const growthRate = document.getElementById('growthRate').value;
+            const numberOfYears = document.getElementById('numberOfYears').value; 
+            // Create a table to display the results
+            const table = document.createElement("table");
+            table.className = "table";
+          
+            // Add the header row
+            const headers = ["Term", "Principal", "Return"];
+            const tHead = document.createElement("thead");
+            const headerRow = document.createElement("tr");
+            headers.map((item)=>{
+                const headerColumn = document.createElement("th");
+                headerColumn.appendChild(document.createTextNode(item));
+                headerRow.appendChild(headerColumn);
+            });
+            tHead.appendChild(headerRow);
+            table.appendChild(tHead);
+            const tBody = document.createElement("tbody");
+            // Add one row for each term
+            for (let i = 0; i < numberOfYears; i++) {
+                const terms = i + 1;
+                // Calculate the future value of the investment
+
+                const row = document.createElement("tr");
+
+                const columnTerm = document.createElement("td");
+                columnTerm.appendChild(document.createTextNode(terms));
+                row.appendChild(columnTerm);
+
+                const columnPrincipal = document.createElement("td");
+                columnPrincipal.appendChild(document.createTextNode(parseInt(principal)));
+                row.appendChild(columnPrincipal);
+
+                principal = parseInt(principal) + (principal * growthRate / 100);
+                const columnReturn = document.createElement("td");
+                columnReturn.appendChild(document.createTextNode(parseInt(principal)));
+                row.appendChild(columnReturn);
+
+                tBody.appendChild(row);
+            }
+            table.appendChild(tBody);
+          
+            // Append the table to the document
+            
+            tableContent.appendChild(table);
+          }
+    </script>
+</body>
+</html>
