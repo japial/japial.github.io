@@ -49,8 +49,13 @@ function calculateCompoundInterest() {
     // Get the form data
     const investType = document.getElementById("investType").value;
     let principal = document.getElementById('principal').value;
-    const growthRate = document.getElementById('growthRate').value;
-    const numberOfYears = document.getElementById('numberOfYears').value; 
+    let growthRate = document.getElementById('growthRate').value;
+    let numberOfTerms = document.getElementById('numberOfYears').value; 
+
+    if(investType === 'sip'){
+        numberOfTerms = numberOfTerms * 12;
+        growthRate = growthRate / 12;
+    }
     // Create a table to display the results
-    generateTable(principal, growthRate, numberOfYears);
+    generateTable(principal, growthRate, numberOfTerms);
 }
