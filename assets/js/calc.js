@@ -55,22 +55,9 @@ function spellNumber(num) {
 }
 
   
-function generateTable(investType, principal, growthRate, numberOfYears){
-    const table = document.createElement("table");
-    table.className = "table";
-  
-    // Add the header row
-    const headers = ["Term", "Principal", "Return", "In Word"];
-    const tHead = document.createElement("thead");
-    const headerRow = document.createElement("tr");
-    headers.map((item)=>{
-        const headerColumn = document.createElement("th");
-        headerColumn.appendChild(document.createTextNode(item));
-        headerRow.appendChild(headerColumn);
-    });
-    tHead.appendChild(headerRow);
-    table.appendChild(tHead);
-    const tBody = document.createElement("tbody");
+function generateTableBody(investType, principal, growthRate, numberOfYears){
+    const tableBody = document.getElementById("tableBodyContent");
+    tableBody.innerHTML = "";
     let returnAmount = principal;
     // Add one row for each term
     for (let i = 0; i < numberOfYears; i++) {
@@ -99,22 +86,15 @@ function generateTable(investType, principal, growthRate, numberOfYears){
         if(investType === 'sip'){
             returnAmount += parseFloat(principal);
             if(terms%12 === 0){
-                tBody.appendChild(row);
+                tableBody.appendChild(row);
             }
         }else{
-            tBody.appendChild(row);
+            tableBody.appendChild(row);
         }
     }
-    table.appendChild(tBody);
-  
-    // Append the table to the document
-    
-    tableContent.appendChild(table);
 }
 
 function calculateCompoundInterest() {
-    let tableContent = document.getElementById('tableContent')
-    tableContent.innerHTML = "";
     // Get the form data
     const investType = document.getElementById("investType").value;
     let principal = document.getElementById('principal').value;
@@ -126,5 +106,5 @@ function calculateCompoundInterest() {
         growthRate = growthRate / 12;
     }
     // Create a table to display the results
-    generateTable(investType, principal, growthRate, numberOfTerms);
+    generateTableBody(investType, principal, growthRate, numberOfTerms);
 }
