@@ -54,7 +54,7 @@ function generateTable(investType, principal, growthRate, numberOfYears){
     table.className = "table";
   
     // Add the header row
-    const headers = ["Term", "Principal", "Return", "Word"];
+    const headers = ["Term", "Principal", "Return", "In Word"];
     const tHead = document.createElement("thead");
     const headerRow = document.createElement("tr");
     headers.map((item)=>{
