@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>JP ToDo</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+  <link rel="manifest" href="manifest.json" />
+  <meta name="theme-color" content="#0d6efd" />
+  <link rel="icon" href="assets/icon-512.png" type="image/png">
+  <style>
+    body { padding: 2rem; }
+    .todo-item.done { text-decoration: line-through; color: #6c757d; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1 class="mb-4">📋 ToDo App</h1>
+    <div class="input-group mb-3">
+      <input type="text" id="taskInput" class="form-control" placeholder="Add new task" onkeypress="handleKey(event)" />
+      <button class="btn btn-primary" onclick="addTask()">Add</button>
+    </div>
+    <ul id="todoList" class="list-group"></ul>
+  </div>
+
+  <script>
+    let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+
+    function saveTasks() {
+      localStorage.setItem('tasks', JSON.stringify(tasks));
+    }
+
+    function renderTasks() {
+      const list = document.getElementById('todoList');
+      list.innerHTML = '';
+      tasks.forEach((task, index) => {
+        const li = document.createElement('li');
+        li.className = 'list-group-item d-flex justify-content-between align-items-center';
+        li.innerHTML = `
+          <span class="todo-item ${task.done ? 'done' : ''}" onclick="toggleDone(${index})">${task.text}</span>
+          <button class="btn btn-sm btn-danger" onclick="deleteTask(${index})">Delete</button>`;
+        list.appendChild(li);
+      });
+    }
+
+    function addTask() {
+      const input = document.getElementById('taskInput');
+      if (input.value.trim()) {
+        tasks.push({ text: input.value.trim(), done: false });
+        input.value = '';
+        saveTasks();
+        renderTasks();
+      }
+    }
+
+    function toggleDone(index) {
+      tasks[index].done = !tasks[index].done;
+      saveTasks();
+      renderTasks();
+    }
+
+    function deleteTask(index) {
+      tasks.splice(index, 1);
+      saveTasks();
+      renderTasks();
+    }
+
+    function handleKey(event) {
+      if (event.key === 'Enter') {
+        addTask();
+      }
+    }
+
+    renderTasks();
+
+    // PWA: register service worker
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('service-worker.js');
+    }
+  </script>
+</body>
+</html>
