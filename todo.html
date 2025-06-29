@@ -4,23 +4,92 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>ToDo App</title>
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
   <link rel="manifest" href="manifest.json" />
   <meta name="theme-color" content="#0d6efd" />
-  <link rel="icon" href="icon-512.png" type="image/png">
+  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>✏️</text></svg>" />
   <style>
-    body { padding: 2rem; }
-    .todo-item.done { text-decoration: line-through; color: #6c757d; }
+    body {
+      font-family: sans-serif;
+      background: #f4f4f4;
+      margin: 0;
+      padding: 2rem;
+    }
+    .container {
+      max-width: 500px;
+      margin: 0 auto;
+      background: white;
+      padding: 1.5rem;
+      border-radius: 8px;
+      box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    }
+    h5 {
+      margin-bottom: 1rem;
+    }
+    .input-group {
+      display: flex;
+      margin-bottom: 1rem;
+    }
+    .input-group input {
+      flex-grow: 1;
+      padding: 0.5rem;
+      font-size: 1rem;
+    }
+    .input-group button {
+      padding: 0.5rem 1rem;
+      font-size: 1.2rem;
+      background: #0d6efd;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+    .input-group button:hover {
+      background: #0b5ed7;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+    li {
+      background: #f8f9fa;
+      margin-bottom: 0.5rem;
+      padding: 0.75rem 1rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border: 1px solid #dee2e6;
+      border-radius: 5px;
+      cursor: grab;
+    }
+    .todo-item.done {
+      text-decoration: line-through;
+      color: #6c757d;
+    }
+    .btn-danger {
+      background: #dc3545;
+      color: white;
+      border: none;
+      padding: 0.3rem 0.6rem;
+      cursor: pointer;
+      font-size: 0.8rem;
+    }
+    .btn-danger:hover {
+      background: #bb2d3b;
+    }
+    .dragging {
+      opacity: 0.5;
+    }
   </style>
 </head>
 <body>
   <div class="container">
-    <h1 class="mb-4">📋 ToDo App</h1>
-    <div class="input-group mb-3">
-      <input type="text" id="taskInput" class="form-control" placeholder="Add new task" onkeypress="handleKey(event)" />
-      <button class="btn btn-primary" onclick="addTask()">Add</button>
+    <h5>📋 ToDo</h5>
+    <div class="input-group">
+      <input type="text" id="taskInput" placeholder="Add new task" onkeypress="handleKey(event)" />
+      <button onclick="addTask()">+</button>
     </div>
-    <ul id="todoList" class="list-group"></ul>
+    <hr/>
+    <ul id="todoList"></ul>
   </div>
 
   <script>
@@ -35,10 +104,31 @@
       list.innerHTML = '';
       tasks.forEach((task, index) => {
         const li = document.createElement('li');
-        li.className = 'list-group-item d-flex justify-content-between align-items-center';
-        li.innerHTML = `
-          <span class="todo-item ${task.done ? 'done' : ''}" onclick="toggleDone(${index})">${task.text}</span>
-          <button class="btn btn-sm btn-danger" onclick="deleteTask(${index})">Delete</button>`;
+        li.draggable = true;
+        li.dataset.index = index;
+        li.innerHTML = `<span class="todo-item ${task.done ? 'done' : ''}" onclick="toggleDone(${index})">${task.text}</span>
+          <button class="btn-danger" onclick="deleteTask(${index})">D</button>`;
+
+        li.addEventListener('dragstart', e => {
+          e.dataTransfer.setData('text/plain', index);
+          li.classList.add('dragging');
+        });
+        li.addEventListener('dragend', () => {
+          li.classList.remove('dragging');
+        });
+        li.addEventListener('dragover', e => e.preventDefault());
+        li.addEventListener('drop', e => {
+          e.preventDefault();
+          const fromIndex = e.dataTransfer.getData('text/plain');
+          const toIndex = li.dataset.index;
+          if (fromIndex !== toIndex) {
+            const moved = tasks.splice(fromIndex, 1)[0];
+            tasks.splice(toIndex, 0, moved);
+            saveTasks();
+            renderTasks();
+          }
+        });
+
         list.appendChild(li);
       });
     }
