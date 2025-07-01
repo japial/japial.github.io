@@ -3,10 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ToDo App</title>
-  <link rel="manifest" href="manifest.json" />
-  <meta name="theme-color" content="#0d6efd" />
-  <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2280%22>✏️</text></svg>" />
+  <title>ToDo App with Subtasks</title>
   <style>
     body {
       font-family: sans-serif;
@@ -42,24 +39,16 @@
       border: none;
       cursor: pointer;
     }
-    .input-group button:hover {
-      background: #0b5ed7;
-    }
     ul {
       list-style: none;
-      padding: 0;
-      margin: 0;
+      padding-left: 0;
     }
     li {
       background: #f8f9fa;
       margin-bottom: 0.5rem;
-      padding: 0.75rem 1rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
+      padding: 0.75rem;
       border: 1px solid #dee2e6;
       border-radius: 5px;
-      cursor: grab;
     }
     .todo-item.done {
       text-decoration: line-through;
@@ -70,14 +59,41 @@
       color: white;
       border: none;
       padding: 0.3rem 0.6rem;
-      cursor: pointer;
       font-size: 0.8rem;
+      cursor: pointer;
     }
-    .btn-danger:hover {
-      background: #bb2d3b;
+    .btn-subtask {
+      background: #20c997;
+      color: white;
+      border: none;
+      padding: 0.3rem 0.6rem;
+      font-size: 0.8rem;
+      cursor: pointer;
     }
-    .dragging {
-      opacity: 0.5;
+    .btn-subtask:hover {
+      background: #17a589;
+    }
+    .task-buttons {
+      display: flex;
+      justify-content: flex-end;
+      gap: 0.3rem;
+    }
+    .subtask-input {
+      margin-top: 0.5rem;
+      display: flex;
+    }
+    .subtask-input input {
+      flex-grow: 1;
+      margin-right: 0.5rem;
+      padding: 0.3rem;
+    }
+    .subtask-list {
+      margin-top: 0.5rem;
+      margin-left: 1rem;
+    }
+    .subtask-list li {
+      background: #e9f7ff;
+      border: 1px solid #bde0f3;
     }
   </style>
 </head>
@@ -88,12 +104,12 @@
       <input type="text" id="taskInput" placeholder="Add new task" onkeypress="handleKey(event)" />
       <button onclick="addTask()">+</button>
     </div>
-    <hr/>
     <ul id="todoList"></ul>
   </div>
 
   <script>
     let tasks = JSON.parse(localStorage.getItem('jpTasks')) || [];
+    const subtaskStates = {};
 
     function saveTasks() {
       localStorage.setItem('jpTasks', JSON.stringify(tasks));
@@ -104,30 +120,81 @@
       list.innerHTML = '';
       tasks.forEach((task, index) => {
         const li = document.createElement('li');
-        li.draggable = true;
-        li.dataset.index = index;
-        li.innerHTML = `<span class="todo-item ${task.done ? 'done' : ''}" onclick="toggleDone(${index})">${task.text}</span>
-          <button class="btn-danger" onclick="deleteTask(${index})">D</button>`;
 
-        li.addEventListener('dragstart', e => {
-          e.dataTransfer.setData('text/plain', index);
-          li.classList.add('dragging');
-        });
-        li.addEventListener('dragend', () => {
-          li.classList.remove('dragging');
-        });
-        li.addEventListener('dragover', e => e.preventDefault());
-        li.addEventListener('drop', e => {
-          e.preventDefault();
-          const fromIndex = e.dataTransfer.getData('text/plain');
-          const toIndex = li.dataset.index;
-          if (fromIndex !== toIndex) {
-            const moved = tasks.splice(fromIndex, 1)[0];
-            tasks.splice(toIndex, 0, moved);
-            saveTasks();
-            renderTasks();
-          }
-        });
+        // Task header with title and buttons
+        const taskHeader = document.createElement('div');
+        taskHeader.style.display = 'flex';
+        taskHeader.style.justifyContent = 'space-between';
+        taskHeader.style.alignItems = 'center';
+
+        const taskSpan = document.createElement('span');
+        taskSpan.className = 'todo-item' + (task.done ? ' done' : '');
+        taskSpan.textContent = task.text;
+        taskSpan.onclick = () => toggleDone(index);
+
+        const buttonGroup = document.createElement('div');
+        buttonGroup.className = 'task-buttons';
+
+        const toggleInputBtn = document.createElement('button');
+        toggleInputBtn.className = 'btn-subtask';
+        toggleInputBtn.textContent = '+';
+        toggleInputBtn.onclick = () => {
+          subtaskStates[index] = !subtaskStates[index];
+          renderTasks();
+        };
+
+        const delBtn = document.createElement('button');
+        delBtn.className = 'btn-danger';
+        delBtn.textContent = 'D';
+        delBtn.onclick = () => deleteTask(index);
+
+        buttonGroup.appendChild(toggleInputBtn);
+        buttonGroup.appendChild(delBtn);
+
+        taskHeader.appendChild(taskSpan);
+        taskHeader.appendChild(buttonGroup);
+        li.appendChild(taskHeader);
+
+        // Subtask input toggle
+        if (subtaskStates[index]) {
+          const subInputWrap = document.createElement('div');
+          subInputWrap.className = 'subtask-input';
+          const subInput = document.createElement('input');
+          subInput.placeholder = 'Add subtask';
+          subInput.onkeypress = (e) => {
+            if (e.key === 'Enter') {
+              addSubtask(index, subInput.value);
+              subInput.value = '';
+            }
+          };
+          subInputWrap.appendChild(subInput);
+          li.appendChild(subInputWrap);
+        }
+
+        // Subtasks list
+        if (task.subtasks && task.subtasks.length > 0) {
+          const subList = document.createElement('ul');
+          subList.className = 'subtask-list';
+          task.subtasks.forEach((sub, subIdx) => {
+            const subItem = document.createElement('li');
+
+            const subSpan = document.createElement('span');
+            subSpan.className = 'todo-item' + (sub.done ? ' done' : '');
+            subSpan.textContent = sub.text;
+            subSpan.onclick = () => toggleSubtask(index, subIdx);
+            subItem.appendChild(subSpan);
+
+            const subDelBtn = document.createElement('button');
+            subDelBtn.className = 'btn-danger';
+            subDelBtn.textContent = 'D';
+            subDelBtn.style.marginLeft = '0.5rem';
+            subDelBtn.onclick = () => deleteSubtask(index, subIdx);
+            subItem.appendChild(subDelBtn);
+
+            subList.appendChild(subItem);
+          });
+          li.appendChild(subList);
+        }
 
         list.appendChild(li);
       });
@@ -136,11 +203,19 @@
     function addTask() {
       const input = document.getElementById('taskInput');
       if (input.value.trim()) {
-        tasks.push({ text: input.value.trim(), done: false });
+        tasks.push({ text: input.value.trim(), done: false, subtasks: [] });
         input.value = '';
         saveTasks();
         renderTasks();
       }
+    }
+
+    function addSubtask(taskIndex, text) {
+      if (!text.trim()) return;
+      if (!tasks[taskIndex].subtasks) tasks[taskIndex].subtasks = [];
+      tasks[taskIndex].subtasks.push({ text: text.trim(), done: false });
+      saveTasks();
+      renderTasks();
     }
 
     function toggleDone(index) {
@@ -149,8 +224,22 @@
       renderTasks();
     }
 
+    function toggleSubtask(taskIndex, subIndex) {
+      const sub = tasks[taskIndex].subtasks[subIndex];
+      sub.done = !sub.done;
+      saveTasks();
+      renderTasks();
+    }
+
     function deleteTask(index) {
       tasks.splice(index, 1);
+      delete subtaskStates[index];
+      saveTasks();
+      renderTasks();
+    }
+
+    function deleteSubtask(taskIndex, subIndex) {
+      tasks[taskIndex].subtasks.splice(subIndex, 1);
       saveTasks();
       renderTasks();
     }
