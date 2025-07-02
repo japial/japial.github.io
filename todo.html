@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>ToDo App with Subtasks</title>
+  <title>ToDo App with Drag and Drop</title>
   <style>
     body {
       font-family: sans-serif;
@@ -49,6 +49,7 @@
       padding: 0.75rem;
       border: 1px solid #dee2e6;
       border-radius: 5px;
+      cursor: move;
     }
     .todo-item.done {
       text-decoration: line-through;
@@ -95,6 +96,9 @@
       background: #e9f7ff;
       border: 1px solid #bde0f3;
     }
+    li.drag-over {
+      border: 2px dashed #0d6efd;
+    }
   </style>
 </head>
 <body>
@@ -120,8 +124,12 @@
       list.innerHTML = '';
       tasks.forEach((task, index) => {
         const li = document.createElement('li');
+        li.setAttribute('draggable', true);
+        li.setAttribute('data-index', index);
+        li.ondragstart = dragStart;
+        li.ondragover = dragOver;
+        li.ondrop = drop;
 
-        // Task header with title and buttons
         const taskHeader = document.createElement('div');
         taskHeader.style.display = 'flex';
         taskHeader.style.justifyContent = 'space-between';
@@ -145,7 +153,7 @@
 
         const delBtn = document.createElement('button');
         delBtn.className = 'btn-danger';
-        delBtn.textContent = 'D';
+        delBtn.textContent = '-';
         delBtn.onclick = () => deleteTask(index);
 
         buttonGroup.appendChild(toggleInputBtn);
@@ -155,7 +163,6 @@
         taskHeader.appendChild(buttonGroup);
         li.appendChild(taskHeader);
 
-        // Subtask input toggle
         if (subtaskStates[index]) {
           const subInputWrap = document.createElement('div');
           subInputWrap.className = 'subtask-input';
@@ -171,7 +178,6 @@
           li.appendChild(subInputWrap);
         }
 
-        // Subtasks list
         if (task.subtasks && task.subtasks.length > 0) {
           const subList = document.createElement('ul');
           subList.className = 'subtask-list';
@@ -186,7 +192,7 @@
 
             const subDelBtn = document.createElement('button');
             subDelBtn.className = 'btn-danger';
-            subDelBtn.textContent = 'D';
+            subDelBtn.textContent = '-';
             subDelBtn.style.marginLeft = '0.5rem';
             subDelBtn.onclick = () => deleteSubtask(index, subIdx);
             subItem.appendChild(subDelBtn);
@@ -248,6 +254,33 @@
       if (event.key === 'Enter') {
         addTask();
       }
+    }
+
+    let draggedIndex = null;
+
+    function dragStart(e) {
+      draggedIndex = +e.target.getAttribute('data-index');
+    }
+
+    function dragOver(e) {
+      e.preventDefault();
+      e.target.closest('li').classList.add('drag-over');
+    }
+
+    function drop(e) {
+      e.preventDefault();
+      const target = e.target.closest('li');
+      target.classList.remove('drag-over');
+      const targetIndex = +target.getAttribute('data-index');
+      if (draggedIndex === null || targetIndex === null || draggedIndex === targetIndex) return;
+
+      const temp = tasks[draggedIndex];
+      tasks.splice(draggedIndex, 1);
+      tasks.splice(targetIndex, 0, temp);
+
+      saveTasks();
+      renderTasks();
+      draggedIndex = null;
     }
 
     renderTasks();
