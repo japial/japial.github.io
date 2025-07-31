@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>SQL Minifier</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      padding: 20px;
+      background: #f4f4f4;
+    }
+    textarea {
+      width: 100%;
+      height: 200px;
+      margin-bottom: 10px;
+    }
+    button {
+      padding: 10px 20px;
+      background-color: #0078d4;
+      color: white;
+      border: none;
+      cursor: pointer;
+      margin-right: 10px;
+    }
+    #output {
+      margin-top: 10px;
+      background: #fff;
+      padding: 10px;
+      border: 1px solid #ccc;
+      white-space: pre-wrap;
+    }
+  </style>
+</head>
+<body>
+  <h1>🧹 SQL Minifier</h1>
+  <textarea id="input" placeholder="Paste your SQL query here..."></textarea>
+  <button onclick="minifySQL()">Minify!</button>
+  <button onclick="copySQL()">Copy</button>
+  <div id="output"></div>
+
+  <script>
+    function minifySQL() {
+      const input = document.getElementById("input").value;
+      const minified = input
+        .replace(/\s+/g, ' ')
+        .replace(/;\s*$/, ';')
+        .trim();
+      document.getElementById("output").innerText = minified;
+    }
+
+    function copySQL() {
+      const output = document.getElementById("output").innerText;
+      if (output) {
+        navigator.clipboard.writeText(output)
+          .then(() => alert("✅ Minified SQL copied to clipboard!"))
+          .catch(err => alert("❌ Copy failed: " + err));
+      } else {
+        alert("⚠️ Nothing to copy—please minify first!");
+      }
+    }
+  </script>
+</body>
+</html>
